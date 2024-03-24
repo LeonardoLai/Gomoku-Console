@@ -151,16 +151,7 @@ public class wuziqi {
         fw.write("\n");
     }
 
-    /* Begin at i = 5, the winning state. First check if robot can make i-in-a-role, and place piece to win.
-    * If robot can't make such role, check if player can make i-in-a-role, and block player from winning.
-    * if both robot and player doesn't made such roles long enough, check for [i-1] until there are someone
-    * made such role long enough, then the robot build the role if the role was made by robot or block the role
-    * if the role was made by player.
-    *
-    * Since robot's beginning move is always the central of the board, and if player plays first
-    * there will be at least one piece on the board, and made "One-in-a-role", so the loop always
-    * has a return. 
-    */
+    // Please refer to readme for the documtation for robot method.
     private static int[] AI(String[][] board, int lastRow, int lastCol) {
         for (int i = 5; i > 0; i--) {
 
