@@ -1,5 +1,8 @@
 import java.util.Scanner;
 import java.lang.Exception;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class wuziqi {
     private static Scanner scanner = new Scanner(System.in);
@@ -9,7 +12,8 @@ public class wuziqi {
     private static final String PLAYER = "\u001B[37m" + "●" + "\u001B[0m";
     private static final String AI = "\u001B[37m" + "○" + "\u001B[0m";
     private static String[][] board = new String[SIZE][SIZE];
-
+    private static File file = new File("export.txt");
+        
     private static int initSize() {
         System.out.println();
         System.out.println("Select the size of the board:");
@@ -109,6 +113,36 @@ public class wuziqi {
         return true;
     }
 
+    private static void writeBoard(FileWriter fw) throws IOException{
+        // print letter index
+        fw.write("\n   ");
+        for (int i = 0; i < SIZE; i++) {
+            fw.write(letters.charAt(i) + " ");
+        }
+        // print board
+        fw.write("\n");
+        for (int i = 0; i < SIZE; i++) {
+            // print number index before each line
+            if (i < 9) {
+                fw.write(" " + (i + 1) + " ");
+            } else {
+                fw.write((i + 1) + " ");
+            }
+            for (int j = 0; j < SIZE; j++) {
+                if (board[i][j] == EMPTY) {
+                    fw.write("+ ");
+                } else if (board[i][j] == PLAYER) {
+                    fw.write("● ");
+                } else if (board[i][j] == AI) {
+                    fw.write("○ ");
+                }
+                
+            }
+            fw.write("\n");
+        }
+        fw.write("\n");
+    }
+
     /* Begin at i = 5, the winning state. First check if robot can make i-in-a-role, and place piece to win.
     * If robot can't make such role, check if player can make i-in-a-role, and block player from winning.
     * if both robot and player doesn't made such roles long enough, check for [i-1] until there are someone
@@ -154,13 +188,20 @@ public class wuziqi {
         return new int[]{-1, -1};
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException{
         boolean PlayersTurn = true;
         boolean gameEnded = false;
+        boolean save = true;
         int row = SIZE / 2;
         int col = SIZE / 2;
         int[] move = new int[2];
-
+        FileWriter fw = null;
+        try {
+            fw = new FileWriter(file);
+        } catch (IOException e) {
+            System.out.println("Error creating export file, the current game will not be saved.");
+            save = false;
+        }
         // initialize board
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
@@ -176,8 +217,19 @@ public class wuziqi {
             System.out.print("> ");
             String inputCheck = scanner.nextLine();
             if (inputCheck.equals("1")) {
+                if (save) {
+                    fw.write("The size of the board is " + SIZE + " x " + SIZE + ".\n");
+                    fw.write("Player takes the first move.\n");
+                    writeBoard(fw);
+                }
                 break;
             } else if (inputCheck.equals("2")) {
+                if (save) {
+                    fw.write("The size of the board is " + SIZE + " x " + SIZE + ".\n");
+                    fw.write("Robot takes the first move.\n");
+                    writeBoard(fw);
+                    fw.write("Robot: (" + (row+1) + ", " + letters.charAt(col) + ")\n");
+                }
                 board[row][col] = AI;
                 System.out.println("Robot plays at (" + (row+1) + ", " + letters.charAt(col) + ")\n");
                 break;
@@ -195,7 +247,9 @@ public class wuziqi {
                 move = AI(board, row, col);
                 row = move[0];
                 col = move[1];
+                fw.write("Robot: (" + (row+1) + ", " + letters.charAt(col) + ")\n");
                 System.out.println("Robot plays at (" + (row+1) + ", " + letters.charAt(col) + ")\n");
+                
             
             // Player's move (ask for input)
             } else {
@@ -211,6 +265,7 @@ public class wuziqi {
                         if (col == -1) {
                             System.out.println("Invalid input, try again.");
                         } else {
+                            fw.write("Human: (" + (row+1) + ", " + letters.charAt(col) + ")\n");
                             break;
                         }
                     } catch (Exception e) {
@@ -227,13 +282,16 @@ public class wuziqi {
                 if (checkWin(row, col, currentPlayer, 5)) {
                     printBoard();
                     gameEnded = true;
-                    System.out.println((PlayersTurn ? "Player" : "AI") + " (" + currentPlayer + ") wins!");
-
+                    System.out.println((PlayersTurn ? "Player" : "Robot") + " (" + currentPlayer + ") wins!");
+                    writeBoard(fw);
+                    fw.write((PlayersTurn ? "Human" : "Robot") + " wins!");
                 // check if move cause draw
                 } else if (isBoardFull()) {
                     printBoard();
                     gameEnded = true;
                     System.out.println("The game is a draw!");
+                    writeBoard(fw);
+                    fw.write("The game is a draw!");
                 
                 // else, switch player and game continues.
                 } else {
@@ -244,5 +302,6 @@ public class wuziqi {
             }
         }
         scanner.close();
+        fw.close();
     }
 }
