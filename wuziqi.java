@@ -3,16 +3,23 @@ import java.lang.Exception;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class wuziqi {
     private static Scanner scanner = new Scanner(System.in);
+
     private static final int SIZE = initSize();
     private static final String letters = "abcdefghijklmnopqrstuvwxyz";
     private static final String EMPTY = "\u001B[90m" + "+" + "\u001B[0m";
     private static final String PLAYER = "\u001B[37m" + "●" + "\u001B[0m";
     private static final String AI = "\u001B[37m" + "○" + "\u001B[0m";
+    private static final LocalDateTime timeNow = LocalDateTime.now();
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd_HH-mm-ss");
+    private static final String time = timeNow.format(formatter);
+
     private static String[][] board = new String[SIZE][SIZE];
-    private static File file = new File("export.txt");
+    private static File file = new File("./Log/", "log_" + time + ".txt");
         
     private static int initSize() {
         System.out.println();
@@ -26,7 +33,7 @@ public class wuziqi {
         do {
             try {
                 System.out.print("> ");
-                String tempSize = scanner.nextLine();
+                String tempSize = scanner.next();
                 Size = Integer.valueOf(tempSize);
                 if (Size == 1) {
                     System.out.println("set size to small\n");
@@ -44,6 +51,7 @@ public class wuziqi {
                     System.out.println("please select 1, 2, 3; or input between 9 and 26!");
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 System.out.println("please select 1, 2, 3; or input between 9 and 26!");
             }
         } while (true);
@@ -198,8 +206,9 @@ public class wuziqi {
         FileWriter fw = null;
         try {
             fw = new FileWriter(file);
-        } catch (IOException e) {
-            System.out.println("Error creating export file, the current game will not be saved.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error creating export file, the current game will not be saved.\n");
             save = false;
         }
         // initialize board
@@ -247,7 +256,9 @@ public class wuziqi {
                 move = AI(board, row, col);
                 row = move[0];
                 col = move[1];
-                fw.write("Robot: (" + (row+1) + ", " + letters.charAt(col) + ")\n");
+                if (save) {
+                    fw.write("Robot: (" + (row+1) + ", " + letters.charAt(col) + ")\n");
+                }
                 System.out.println("Robot plays at (" + (row+1) + ", " + letters.charAt(col) + ")\n");
                 
             
@@ -265,7 +276,9 @@ public class wuziqi {
                         if (col == -1) {
                             System.out.println("Invalid input, try again.");
                         } else {
-                            fw.write("Human: (" + (row+1) + ", " + letters.charAt(col) + ")\n");
+                            if (save) {
+                                fw.write("Human: (" + (row+1) + ", " + letters.charAt(col) + ")\n");
+                            }
                             break;
                         }
                     } catch (Exception e) {
@@ -283,15 +296,19 @@ public class wuziqi {
                     printBoard();
                     gameEnded = true;
                     System.out.println((PlayersTurn ? "Player" : "Robot") + " (" + currentPlayer + ") wins!");
-                    writeBoard(fw);
-                    fw.write((PlayersTurn ? "Human" : "Robot") + " wins!");
+                    if (save) {
+                        writeBoard(fw);
+                        fw.write((PlayersTurn ? "Human" : "Robot") + " wins!");
+                    }
                 // check if move cause draw
                 } else if (isBoardFull()) {
                     printBoard();
                     gameEnded = true;
                     System.out.println("The game is a draw!");
-                    writeBoard(fw);
-                    fw.write("The game is a draw!");
+                    if (save) {
+                        writeBoard(fw);
+                        fw.write("The game is a draw!");
+                    }
                 
                 // else, switch player and game continues.
                 } else {
@@ -302,6 +319,8 @@ public class wuziqi {
             }
         }
         scanner.close();
-        fw.close();
+        if (save) {
+            fw.close();
+        }
     }
 }
