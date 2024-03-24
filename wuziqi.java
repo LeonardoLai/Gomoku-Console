@@ -151,7 +151,16 @@ public class wuziqi {
         fw.write("\n");
     }
 
-    // Please refer to readme for the documtation for robot method.
+    /* Begin at i = 5, the winning state. First check if robot can make i-in-a-role, and place piece to win.
+    * If robot can't make such role, check if player can make i-in-a-role, and block player from winning.
+    * if both robot and player doesn't made such roles long enough, check for [i-1] until there are someone
+    * made such role long enough, then the robot build the role if the role was made by robot or block the role
+    * if the role was made by player.
+    *
+    * Since robot's beginning move is always the central of the board, and if player plays first
+    * there will be at least one piece on the board, and made "One-in-a-role", so the loop always
+    * has a return. 
+    */
     private static int[] AI(String[][] board, int lastRow, int lastCol) {
         for (int i = 5; i > 0; i--) {
 
@@ -191,6 +200,7 @@ public class wuziqi {
         boolean PlayersTurn = true;
         boolean gameEnded = false;
         boolean save = true;
+        int hand = 1;
         int row = SIZE / 2;
         int col = SIZE / 2;
         int[] move = new int[2];
@@ -228,7 +238,8 @@ public class wuziqi {
                     fw.write("The size of the board is " + SIZE + " x " + SIZE + ".\n");
                     fw.write("Robot takes the first move.\n");
                     writeBoard(fw);
-                    fw.write("Robot: (" + (row+1) + ", " + letters.charAt(col) + ")\n");
+                    fw.write(hand + " - Robot: (" + (row+1) + ", " + letters.charAt(col) + ")\n");
+                    hand++;
                 }
                 board[row][col] = AI;
                 System.out.println("Robot plays at (" + (row+1) + ", " + letters.charAt(col) + ")\n");
@@ -248,7 +259,8 @@ public class wuziqi {
                 row = move[0];
                 col = move[1];
                 if (save) {
-                    fw.write("Robot: (" + (row+1) + ", " + letters.charAt(col) + ")\n");
+                    fw.write(hand + " - Robot: (" + (row+1) + ", " + letters.charAt(col) + ")\n");
+                    hand++;
                 }
                 System.out.println("Robot plays at (" + (row+1) + ", " + letters.charAt(col) + ")\n");
                 
@@ -268,7 +280,8 @@ public class wuziqi {
                             System.out.println("Invalid input, try again.");
                         } else {
                             if (save) {
-                                fw.write("Human: (" + (row+1) + ", " + letters.charAt(col) + ")\n");
+                                fw.write(hand + " - Human: (" + (row+1) + ", " + letters.charAt(col) + ")\n");
+                                hand++;
                             }
                             break;
                         }
