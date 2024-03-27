@@ -7,9 +7,14 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class wuziqi {
+    // Scanner for recording user input
     private static Scanner scanner = new Scanner(System.in);
-
+    // get the size of board before the 2d array created.
     private static final int SIZE = initSize();
+    // create the gameboard
+    private static String[][] board = new String[SIZE][SIZE];
+    
+    // Some global symbols
     private static final String letters = "abcdefghijklmnopqrstuvwxyz";
     private static final String EMPTY = "\u001B[90m" + "+" + "\u001B[0m";
     private static final String PLAYER = "\u001B[37m" + "●" + "\u001B[0m";
@@ -17,10 +22,12 @@ public class wuziqi {
     private static final LocalDateTime timeNow = LocalDateTime.now();
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd_HH-mm-ss");
     private static final String time = timeNow.format(formatter);
-
-    private static String[][] board = new String[SIZE][SIZE];
+    
+    // create the output file
     private static File file = new File("./Log/", "log_" + time + ".txt");
-        
+
+    /* 
+     */
     private static int initSize() {
         System.out.println();
         System.out.println("Select the size of the board:");
